@@ -1,0 +1,43 @@
+syntax = "proto3";
+package miner;
+
+service MinerAPI {
+  // 30b — RPCs pedidos
+  rpc getTransactionID(Empty)              returns (TransactionID);
+  rpc getChallenge(TransactionID)          returns (Challenge);
+  rpc getTransactionStatus(TransactionID)  returns (Status);
+  rpc submitChallenge(Submission)          returns (SubmitReply);
+  rpc getWinner(TransactionID)             returns (WinnerReply);
+  rpc getSolution(TransactionID)           returns (SolutionReply);
+}
+
+// ---------- mensagens ----------
+message Empty {}
+
+message TransactionID { int32 id = 1; }
+
+message Challenge { int32 difficulty = 1; }  // inteiro [1..20]; -1 se inválido
+
+message Status { int32 status = 1; } 
+// 0 = resolvido, 1 = pendente, -1 = inválido
+
+message Submission {
+  int32 transactionID = 1;
+  int32 clientID      = 2;
+  string solution     = 3; // string cuja SHA-1 deve passar no desafio
+}
+
+message SubmitReply { int32 code = 1; } 
+//  1 = válida (aceita)
+//  0 = inválida
+//  2 = já solucionado
+// -1 = transactionID inválido
+
+message WinnerReply { int32 clientID = 1; } 
+// clientID do vencedor; 0 se sem vencedor; -1 se inválido
+
+message SolutionReply {
+  int32 status        = 1;   // mesmos valores de Status
+  string solution     = 2;   // string vencedora (se houver)
+  int32 difficulty    = 3;   // desafio associado
+}
